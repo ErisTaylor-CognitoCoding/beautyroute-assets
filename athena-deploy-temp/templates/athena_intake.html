@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Free AI Audit — Cognito Coding Athena</title>
+  <meta name="description" content="Get a free AI opportunity audit for your business. Cognito Coding will analyse your workflows and identify where AI saves you the most time and money.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --orange: #FF6600;
+      --amber: #FFB347;
+      --ink: #1a1a1a;
+      --muted: #5f6570;
+      --bg: #0a0500;
+      --surface: #1a0f00;
+      --card: #231500;
+      --border: #3a2200;
+      --radius: 12px;
+    }
+    body {
+      font-family: 'Atkinson Hyperlegible', Arial, sans-serif;
+      background: var(--bg);
+      color: #fff;
+      min-height: 100vh;
+    }
+    .hero {
+      background: linear-gradient(135deg, #000 0%, var(--surface) 60%, #1a0800 100%);
+      padding: 48px 24px 40px;
+      text-align: center;
+      border-bottom: 2px solid var(--border);
+    }
+    .brand { color: var(--orange); font-size: 13px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 16px; }
+    .hero h1 { font-size: clamp(24px, 5vw, 44px); font-weight: 700; line-height: 1.15; margin-bottom: 12px; }
+    .hero h1 span { color: var(--orange); }
+    .hero p { font-size: 16px; color: #ccc; max-width: 540px; margin: 0 auto 24px; line-height: 1.6; }
+    .badges { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 8px; }
+    .badge { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 6px 14px; font-size: 13px; color: var(--amber); }
+    .container { max-width: 740px; margin: 0 auto; padding: 40px 20px 60px; }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px 32px;
+      margin-bottom: 24px;
+    }
+    .card-title {
+      font-size: 11px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 1.5px; color: var(--orange); margin-bottom: 20px;
+      padding-bottom: 10px; border-bottom: 1px solid var(--border);
+    }
+    .field { margin-bottom: 20px; }
+    .field label { display: block; font-size: 14px; font-weight: 700; margin-bottom: 6px; color: #ddd; }
+    .field .hint { font-size: 12px; color: var(--muted); margin-bottom: 6px; line-height: 1.4; }
+    .field input, .field select, .field textarea {
+      width: 100%;
+      background: #0f0800;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: #fff;
+      font-family: inherit;
+      font-size: 15px;
+      padding: 10px 14px;
+      transition: border-color 0.2s;
+    }
+    .field input:focus, .field select:focus, .field textarea:focus {
+      outline: none;
+      border-color: var(--orange);
+    }
+    .field textarea { resize: vertical; min-height: 100px; line-height: 1.5; }
+    .field select option { background: #1a0f00; }
+    .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .required { color: var(--orange); }
+    .submit-btn {
+      width: 100%;
+      background: var(--orange);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: 18px;
+      font-weight: 700;
+      padding: 16px;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+      margin-top: 8px;
+    }
+    .submit-btn:hover { background: #e55a00; }
+    .submit-btn:active { transform: scale(0.99); }
+    .trust-row { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; margin-top: 20px; }
+    .trust-item { font-size: 13px; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+    .trust-item span.icon { color: var(--orange); font-size: 16px; }
+    .section-divider { text-align: center; font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); margin: 28px 0 20px; }
+    @media (max-width: 560px) {
+      .card { padding: 20px; }
+      .field-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<div class="hero">
+  <div class="brand">Cognito Coding &bull; Athena</div>
+  <h1>Find Out Exactly Where <span>AI Saves Your Business</span> Time and Money</h1>
+  <p>Answer 7 questions. Get a personalised AI opportunity report — free. Emailed as a PDF within the hour.</p>
+  <div class="badges">
+    <span class="badge">&#x2713; Free audit</span>
+    <span class="badge">&#x2713; PDF report emailed to you</span>
+    <span class="badge">&#x2713; No sales call pressure</span>
+  </div>
+</div>
+
+<div class="container">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for cat, msg in messages %}
+      <div style="background:{% if cat=='error' %}#5a0000{% else %}#1a3a00{% endif %};border:1px solid {% if cat=='error' %}#a00{% else %}#3a6000{% endif %};border-radius:8px;padding:12px 16px;margin-bottom:20px;font-size:14px;">{{ msg }}</div>
+    {% endfor %}
+  {% endwith %}
+
+  <form method="post" action="{{ url_for('athena_intake') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+    <!-- Section 1: About Your Business -->
+    <div class="card">
+      <div class="card-title">&#x1F3E2; About Your Business</div>
+      <div class="field-row">
+        <div class="field">
+          <label for="business_name">Business Name <span class="required">*</span></label>
+          <input id="business_name" name="business_name" type="text" placeholder="e.g. Acme Plumbing Ltd" required>
+        </div>
+        <div class="field">
+          <label for="industry">Industry</label>
+          <input id="industry" name="industry" type="text" placeholder="e.g. Plumbing, Marketing, Retail">
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="contact_name">Your Name</label>
+          <input id="contact_name" name="contact_name" type="text" placeholder="Jane Smith">
+        </div>
+        <div class="field">
+          <label for="contact_email">Email Address</label>
+          <div class="hint">We'll send your PDF report here.</div>
+          <input id="contact_email" name="contact_email" type="email" placeholder="jane@yourcompany.com">
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="team_size">Team Size</label>
+          <select id="team_size" name="team_size">
+            <option value="">Select...</option>
+            <option value="Just me">Just me (sole trader)</option>
+            <option value="2-5">2 to 5 people</option>
+            <option value="6-20">6 to 20 people</option>
+            <option value="21-50">21 to 50 people</option>
+            <option value="51-200">51 to 200 people</option>
+            <option value="200+">200+ people</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="budget_range">Monthly Budget for AI/Automation</label>
+          <select id="budget_range" name="budget_range">
+            <option value="">Select...</option>
+            <option value="Under £200">Under £200/month</option>
+            <option value="£200-£750">£200 to £750/month</option>
+            <option value="£750-£2000">£750 to £2,000/month</option>
+            <option value="£2000+">£2,000+/month</option>
+            <option value="Unsure">Not sure yet</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 2: Your Situation -->
+    <div class="section-divider">&#x2014; Your Current Situation &#x2014;</div>
+
+    <div class="card">
+      <div class="card-title">&#x26A0;&#xFE0F; What's Slowing You Down</div>
+
+      <div class="field">
+        <label for="current_bottlenecks">What are your biggest bottlenecks right now? <span class="required">*</span></label>
+        <div class="hint">Be specific — what tasks or processes frustrate you most, take the longest, or keep going wrong?</div>
+        <textarea id="current_bottlenecks" name="current_bottlenecks" placeholder="e.g. Chasing unpaid invoices takes 3 hours a week. Client onboarding is a mess of emails and spreadsheets. Reporting takes forever to compile..."></textarea>
+      </div>
+
+      <div class="field">
+        <label for="manual_processes">Which tasks does your team do manually that feel like they should be automated?</label>
+        <div class="hint">Think: data entry, copying between systems, repetitive emails, weekly reports...</div>
+        <textarea id="manual_processes" name="manual_processes" placeholder="e.g. We manually copy orders from our website into our accounting software. We send the same follow-up emails every week..."></textarea>
+      </div>
+
+      <div class="field">
+        <label for="biggest_time_waste">Where does your time go that produces the least value?</label>
+        <div class="hint">Admin, chasing people, formatting reports, answering the same questions over and over...</div>
+        <textarea id="biggest_time_waste" name="biggest_time_waste" placeholder="e.g. I spend 2 hours every Monday morning creating weekly reports from different spreadsheets..."></textarea>
+      </div>
+    </div>
+
+    <!-- Section 3: Tools and Goals -->
+    <div class="section-divider">&#x2014; Tools and Goals &#x2014;</div>
+
+    <div class="card">
+      <div class="card-title">&#x1F527; Tools, Goals and Experience</div>
+
+      <div class="field">
+        <label for="tools_in_use">What tools and software do you currently use?</label>
+        <div class="hint">List anything: CRMs, accounting software, project tools, email platforms, spreadsheets...</div>
+        <textarea id="tools_in_use" name="tools_in_use" rows="3" placeholder="e.g. Xero for accounting, Trello for projects, Mailchimp for email, lots of Google Sheets..."></textarea>
+      </div>
+
+      <div class="field">
+        <label for="goals_6_months">What does success look like for your business in 6 months?</label>
+        <div class="hint">Revenue targets, time saved, new services, more clients, less stress — whatever matters most to you.</div>
+        <textarea id="goals_6_months" name="goals_6_months" rows="3" placeholder="e.g. I want to take on 20% more clients without hiring another person. I want to get my admin time below 5 hours a week..."></textarea>
+      </div>
+
+      <div class="field">
+        <label for="ai_experience">What's your experience with AI or automation so far?</label>
+        <select id="ai_experience" name="ai_experience">
+          <option value="">Select...</option>
+          <option value="None — completely new to this">None — completely new to this</option>
+          <option value="Tried ChatGPT casually, nothing systematic">Tried ChatGPT casually, nothing systematic</option>
+          <option value="Use AI tools daily but not connected to my business systems">Use AI tools daily but not connected to my business systems</option>
+          <option value="Have some automations running (e.g. Zapier, Make)">Have some automations running (e.g. Zapier, Make)</option>
+          <option value="We use AI seriously — looking for the next level">We use AI seriously — looking for the next level</option>
+        </select>
+      </div>
+    </div>
+
+    <button type="submit" class="submit-btn">Get My Free AI Audit Report &#x2192;</button>
+
+    <div class="trust-row">
+      <div class="trust-item"><span class="icon">&#x1F512;</span> Your data is private. Never sold.</div>
+      <div class="trust-item"><span class="icon">&#x23F1;</span> Report ready within the hour.</div>
+      <div class="trust-item"><span class="icon">&#x1F4B8;</span> Completely free. No card required.</div>
+    </div>
+  </form>
+</div>
+</body>
+</html>
