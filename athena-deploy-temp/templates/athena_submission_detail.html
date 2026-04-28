@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+{% block title %} &mdash; Athena: {{ sub.business_name }}{% endblock %}
+{% block content %}
+<div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap;">
+  <a href="{{ url_for('athena_submissions') }}" style="color:var(--muted);font-size:13px;text-decoration:none;">
+    &#x2190; Athena Audits
+  </a>
+  <h1 class="section-title" style="margin:0;">&#x1F3DB;&#xFE0F; {{ sub.business_name }}</h1>
+</div>
+
+<!-- Status bar -->
+<div class="panel" style="margin-bottom:16px;display:flex;gap:24px;align-items:center;flex-wrap:wrap;">
+  <div>
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:4px;">Status</div>
+    {% set st = sub.report_status or 'pending' %}
+    <span class="badge {% if st == 'done' %}green{% elif st == 'error' %}red{% elif st == 'generating' %}blue{% else %}amber{% endif %}" style="font-size:13px;padding:4px 12px;">
+      {{ st }}
+    </span>
+  </div>
+  <div>
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:4px;">Email</div>
+    {% if sub.email_sent %}
+      <span class="badge green">Sent {{ sub.email_sent_at.strftime('%d %b %H:%M') if sub.email_sent_at else '' }}</span>
+    {% elif sub.contact_email %}
+      <span class="badge amber">Pending</span>
+    {% else %}
+      <span style="color:var(--muted);font-size:13px;">No email provided</span>
+    {% endif %}
+  </div>
+  <div>
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:4px;">Submitted</div>
+    <span style="font-size:13px;">{{ sub.created_at.strftime('%d %b %Y at %H:%M') }}</span>
+  </div>
+  <div style="margin-left:auto;display:flex;gap:8px;flex-wrap:wrap;">
+    {% if sub.report_markdown %}
+    <a class="btn-primary" href="{{ url_for('athena_submission_pdf', sid=sub.id) }}"
+       style="padding:8px 16px;border-radius:8px;background:var(--orange);color:#fff;text-decoration:none;font-weight:700;font-size:13px;">
+      &#x1F4E5; Download PDF
+    </a>
+    {% endif %}
+    <form method="post" action="{{ url_for('athena_regenerate', sid=sub.id) }}" style="display:inline;">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button type="submit" class="btn-secondary"
+              style="padding:8px 16px;border-radius:8px;font-size:13px;"
+              onclick="return confirm('Regenerate and re-send the report?');">
+        &#x21BA; Regenerate
+      </button>
+    </form>
+    {% if sub.client_id %}
+    <a class="btn-secondary" href="{{ url_for('client_detail', cid=sub.client_id) }}"
+       style="padding:8px 16px;border-radius:8px;font-size:13px;text-decoration:none;">
+      &#x1F4CB; CRM Record
+    </a>
+    {% endif %}
+  </div>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+  <!-- Business info -->
+  <div class="panel">
+    <h2 class="section-title">Business Info</h2>
+    <table style="width:100%;font-size:14px;border-collapse:collapse;">
+      <tr><td style="color:var(--muted);padding:4px 0;width:140px;">Business</td><td><strong>{{ sub.business_name }}</strong></td></tr>
+      <tr><td style="color:var(--muted);padding:4px 0;">Industry</td><td>{{ sub.industry or '—' }}</td></tr>
+      <tr><td style="color:var(--muted);padding:4px 0;">Team Size</td><td>{{ sub.team_size or '—' }}</td></tr>
+      <tr><td style="color:var(--muted);padding:4px 0;">Contact</td><td>{{ sub.contact_name or '—' }}</td></tr>
+      <tr><td style="color:var(--muted);padding:4px 0;">Email</td><td>{{ sub.contact_email or '—' }}</td></tr>
+      <tr><td style="color:var(--muted);padding:4px 0;">Budget</td><td>{{ sub.budget_range or '—' }}</td></tr>
+    </table>
+  </div>
+
+  <!-- Intake answers -->
+  <div class="panel">
+    <h2 class="section-title">AI Experience</h2>
+    <div style="font-size:14px;color:var(--muted);">{{ sub.ai_experience or 'Not answered' }}</div>
+  </div>
+</div>
+
+<!-- Intake Q&A -->
+<div class="panel" style="margin-bottom:16px;">
+  <h2 class="section-title">Intake Answers</h2>
+  <div style="display:grid;gap:16px;">
+    {% set qa = [
+      ('Current Bottlenecks', sub.current_bottlenecks),
+      ('Manual Processes', sub.manual_processes),
+      ('Biggest Time Waste', sub.biggest_time_waste),
+      ('Tools in Use', sub.tools_in_use),
+      ('Goals — 6 Months', sub.goals_6_months),
+    ] %}
+    {% for label, answer in qa %}
+    <div>
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--orange);margin-bottom:6px;">{{ label }}</div>
+      <div style="font-size:14px;color:{{ '#ddd' if answer else 'var(--muted)' }};line-height:1.6;background:var(--surface);border-left:3px solid var(--border);padding:10px 14px;border-radius:0 6px 6px 0;">
+        {{ answer or 'Not answered' }}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- Generated Report -->
+<div class="panel">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:8px;">
+    <h2 class="section-title" style="margin:0;">Generated Report</h2>
+    {% if sub.report_status in ('pending', 'generating') %}
+      <div id="status-poll" style="font-size:13px;color:var(--amber);">
+        &#x23F3; {{ 'Generating...' if sub.report_status == 'generating' else 'Queued...' }}
+      </div>
+    {% endif %}
+  </div>
+
+  {% if sub.report_markdown %}
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:20px 24px;font-size:14px;line-height:1.7;white-space:pre-wrap;color:#ddd;font-family:'Atkinson Hyperlegible',monospace;max-height:600px;overflow-y:auto;">{{ sub.report_markdown }}</div>
+  {% elif sub.report_status == 'error' %}
+    <div style="background:#2a0000;border:1px solid #600;border-radius:8px;padding:16px;color:#ff9999;font-size:14px;">
+      Report generation failed. Check container logs for details. Use the Regenerate button to retry.
+    </div>
+  {% else %}
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:24px;text-align:center;color:var(--muted);font-size:14px;">
+      Report not yet generated. Status: <strong>{{ sub.report_status }}</strong>
+    </div>
+  {% endif %}
+</div>
+
+{% if sub.report_status in ('pending', 'generating') %}
+<script>
+(function() {
+  function poll() {
+    fetch('{{ url_for("athena_submission_status", sid=sub.id) }}')
+      .then(function(r) { return r.json(); })
+      .then(function(d) {
+        if (d.status === 'done' || d.status === 'error') {
+          location.reload();
+        } else {
+          setTimeout(poll, 8000);
+        }
+      })
+      .catch(function() { setTimeout(poll, 10000); });
+  }
+  setTimeout(poll, 5000);
+})();
+</script>
+{% endif %}
+{% endblock %}
