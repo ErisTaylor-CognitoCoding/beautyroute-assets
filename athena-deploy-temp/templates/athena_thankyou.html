@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Audit Request Received — Cognito Coding</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Atkinson Hyperlegible', Arial, sans-serif;
+      background: #0a0500;
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .card {
+      background: #1a0f00;
+      border: 1px solid #3a2200;
+      border-top: 4px solid #FF6600;
+      border-radius: 16px;
+      padding: 48px 40px;
+      max-width: 560px;
+      width: 100%;
+      text-align: center;
+    }
+    .icon { font-size: 64px; margin-bottom: 20px; }
+    h1 { font-size: 28px; margin-bottom: 12px; }
+    h1 span { color: #FF6600; }
+    .sub { font-size: 16px; color: #ccc; line-height: 1.6; margin-bottom: 28px; }
+    .status-box {
+      background: #0f0800;
+      border: 1px solid #3a2200;
+      border-radius: 10px;
+      padding: 16px 20px;
+      margin-bottom: 28px;
+    }
+    .status-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #FFB347; margin-bottom: 6px; }
+    .status-value { font-size: 15px; color: #ddd; }
+    .steps { text-align: left; margin-bottom: 28px; }
+    .step { display: flex; gap: 14px; margin-bottom: 14px; align-items: flex-start; }
+    .step-num { background: #FF6600; color: #fff; width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0; margin-top: 2px; }
+    .step-text { font-size: 14px; color: #ccc; line-height: 1.5; }
+    .step-text strong { color: #fff; }
+    .back-link { display: inline-block; color: #FF6600; font-size: 14px; text-decoration: none; }
+    .back-link:hover { text-decoration: underline; }
+    #status-indicator { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #FFB347; margin-right: 6px; animation: pulse 1.5s infinite; }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+  </style>
+  {% if sub and sub.report_status in ('pending', 'generating') %}
+  <script>
+    // Poll every 15s until report is done
+    (function() {
+      var sid = {{ sub.id }};
+      function poll() {
+        fetch('/athena/' + sid + '/status')
+          .then(function(r) { return r.json(); })
+          .then(function(d) {
+            if (d.status === 'done') {
+              document.getElementById('status-text').textContent =
+                d.email_sent ? 'Done! Your report has been emailed.' : 'Report generated! Check your inbox shortly.';
+              document.getElementById('status-indicator').style.background = '#4CAF50';
+              document.getElementById('status-indicator').style.animation = 'none';
+            } else if (d.status === 'error') {
+              document.getElementById('status-text').textContent = 'Processing issue — we will email you shortly.';
+              document.getElementById('status-indicator').style.background = '#e53935';
+              document.getElementById('status-indicator').style.animation = 'none';
+            } else {
+              setTimeout(poll, 15000);
+            }
+          })
+          .catch(function() { setTimeout(poll, 15000); });
+      }
+      setTimeout(poll, 8000);
+    })();
+  </script>
+  {% endif %}
+</head>
+<body>
+<div class="card">
+  <div class="icon">&#x1F4CA;</div>
+  <h1>Your <span>Audit Request</span> Is In</h1>
+  <p class="sub">
+    Claude is analysing your answers and generating your personalised AI opportunity report.
+    {% if sub and sub.contact_email %}
+    It will be emailed to <strong>{{ sub.contact_email }}</strong> shortly.
+    {% endif %}
+  </p>
+
+  {% if sub %}
+  <div class="status-box">
+    <div class="status-label">Report Status</div>
+    <div class="status-value">
+      <span id="status-indicator"></span>
+      <span id="status-text">
+        {% if sub.report_status == 'done' %}
+          {% if sub.email_sent %}Done! Report emailed.{% else %}Done! Sending email...{% endif %}
+        {% elif sub.report_status == 'generating' %}
+          Generating your report now...
+        {% elif sub.report_status == 'error' %}
+          Processing issue — we will be in touch.
+        {% else %}
+          Queued for processing...
+        {% endif %}
+      </span>
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-text"><strong>AI Analysis</strong> — Claude is reading your answers and identifying your top automation opportunities.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-text"><strong>Report Generated</strong> — A structured PDF audit covering your current state, AI opportunity map, and a phased roadmap.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-text"><strong>Email Delivered</strong> — Your report lands in your inbox. Reply any time to book a free 60-min debrief.</div>
+    </div>
+  </div>
+
+  <a class="back-link" href="{{ url_for('athena_intake') }}">&#x2190; Submit another audit</a>
+</div>
+</body>
+</html>
